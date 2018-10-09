@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 
-import { Observable, of } from 'rxjs';
+import { Observable, of, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
 import { Storage } from '@ionic/storage';
@@ -16,10 +16,17 @@ export class IdentityService {
   private tokenKey = 'auth-token';
   private token: string;
   private user: User;
-  constructor(private http: HttpClient, private storage: Storage) {}
+
+  changed: Subject<User>;
+
+  constructor(private http: HttpClient, private storage: Storage) {
+    this.changed = new Subject();
+  }
 
   get(): Observable<User> {
+    console.log('get user', this.user);
     if (!this.user) {
+      console.log('getting...');
       return this.http
         .get<User>(`${environment.dataService}/users/current`)
         .pipe(tap(u => (this.user = u)));
@@ -30,10 +37,12 @@ export class IdentityService {
 
   set(user: User): void {
     this.user = user;
+    this.changed.next(this.user);
   }
 
   remove(): void {
     this.user = undefined;
+    this.changed.next(this.user);
   }
 
   async setToken(token: string) {

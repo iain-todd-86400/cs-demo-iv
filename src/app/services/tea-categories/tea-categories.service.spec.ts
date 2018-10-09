@@ -40,7 +40,7 @@ describe('TeaCategoriesService', () => {
 
     it('gets all of the car classes', () => {
       teaCategoriesService.getAll().subscribe(c => expect(c).toEqual(testTeaCategories));
-      const req = httpTestingController.expectOne(`${environment.dataService}/tea-categories`);
+      const req = httpTestingController.expectOne(`${environment.dataService}/protected/tea-categories`);
       expect(req.request.method).toEqual('GET');
       req.flush(categories);
       httpTestingController.verify();
