@@ -4,30 +4,23 @@ import {
   HttpTestingController
 } from '@angular/common/http/testing';
 
-import { Storage } from '@ionic/storage';
-
 import { AuthenticationService } from './authentication.service';
 import { environment } from '../../../environments/environment';
 import { IdentityService, createIdentityServiceMock } from '../identity';
-
-import { createStorageMock } from '../../../../test/mocks';
 
 describe('AuthenticationService', () => {
   let authentication: AuthenticationService;
   let httpTestingController: HttpTestingController;
 
   let identityServiceMock;
-  let storageMock;
 
   beforeEach(() => {
     identityServiceMock = createIdentityServiceMock();
-    storageMock = createStorageMock();
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
         AuthenticationService,
-        { provide: IdentityService, useValue: identityServiceMock },
-        { provide: Storage, useValue: storageMock }
+        { provide: IdentityService, useValue: identityServiceMock }
       ]
     });
 
@@ -108,11 +101,8 @@ describe('AuthenticationService', () => {
         );
         req.flush(response);
         httpTestingController.verify();
-        expect(storageMock.ready).toHaveBeenCalledTimes(1);
-        await storageMock.ready();
-        expect(storageMock.set).toHaveBeenCalledTimes(1);
-        expect(storageMock.set).toHaveBeenCalledWith(
-          'auth-token',
+        expect(identityServiceMock.setToken).toHaveBeenCalledTimes(1);
+        expect(identityServiceMock.setToken).toHaveBeenCalledWith(
           '48499501093kf00399sg'
         );
       });
@@ -162,8 +152,7 @@ describe('AuthenticationService', () => {
         );
         req.flush(response);
         httpTestingController.verify();
-        expect(storageMock.ready).not.toHaveBeenCalled();
-        expect(storageMock.set).not.toHaveBeenCalled();
+        expect(identityServiceMock.setToken).not.toHaveBeenCalled();
       });
 
       it('does not set the identity', () => {
@@ -183,9 +172,10 @@ describe('AuthenticationService', () => {
   describe('logout', () => {
     it('POSTs the logout', () => {
       let fired = false;
-      authentication.logout().subscribe(() => fired = true);
+      authentication.logout().subscribe(() => (fired = true));
       const req = httpTestingController.expectOne(
-        `${environment.dataService}/logout`);
+        `${environment.dataService}/logout`
+      );
       req.flush({});
       httpTestingController.verify();
       expect(fired).toBeTruthy();
@@ -194,16 +184,18 @@ describe('AuthenticationService', () => {
     it('removes the token from storage', () => {
       authentication.logout().subscribe();
       const req = httpTestingController.expectOne(
-        `${environment.dataService}/logout`);
+        `${environment.dataService}/logout`
+      );
       req.flush({});
-      expect(storageMock.remove).toHaveBeenCalledTimes(1);
-      expect(storageMock.remove).toHaveBeenCalledWith('auth-token');
+      expect(identityServiceMock.setToken).toHaveBeenCalledTimes(1);
+      expect(identityServiceMock.setToken).toHaveBeenCalledWith('');
     });
 
     it('remove the identity', () => {
       authentication.logout().subscribe();
       const req = httpTestingController.expectOne(
-        `${environment.dataService}/logout`);
+        `${environment.dataService}/logout`
+      );
       req.flush({});
       expect(identityServiceMock.remove).toHaveBeenCalledTimes(1);
     });

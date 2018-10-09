@@ -4,6 +4,8 @@ import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
+import { Storage } from '@ionic/storage';
+
 import { environment } from '../../../environments/environment';
 import { User } from '../../models/user';
 
@@ -11,8 +13,10 @@ import { User } from '../../models/user';
   providedIn: 'root'
 })
 export class IdentityService {
+  private tokenKey = 'auth-token';
+  private token: string;
   private user: User;
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient, private storage: Storage) {}
 
   get(): Observable<User> {
     if (!this.user) {
@@ -30,5 +34,22 @@ export class IdentityService {
 
   remove(): void {
     this.user = undefined;
+  }
+
+  async setToken(token: string) {
+    await this.storage.ready();
+    if (token) {
+      this.storage.set(this.tokenKey, token);
+    } else {
+      this.storage.remove(this.tokenKey);
+    }
+  }
+
+  async getToken(): Promise<string> {
+    if (!this.token) {
+      await this.storage.ready();
+      this.token = await this.storage.get(this.tokenKey);
+    }
+    return this.token;
   }
 }

@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Storage } from '@ionic/storage';
 
 import { Observable } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
@@ -15,8 +14,7 @@ import { User } from '../../models/user';
 export class AuthenticationService {
   constructor(
     private http: HttpClient,
-    private identity: IdentityService,
-    private storage: Storage
+    private identity: IdentityService
   ) {}
 
   login(email: string, password: string): Observable<boolean> {
@@ -32,8 +30,7 @@ export class AuthenticationService {
         tap(async r => {
           if (r.success) {
             this.identity.set(r.user);
-            await this.storage.ready();
-            this.storage.set('auth-token', r.token);
+            this.identity.setToken(r.token);
           }
         }),
         map(r => r.success)
@@ -41,7 +38,7 @@ export class AuthenticationService {
   }
 
   logout(): Observable<any> {
-    this.storage.remove('auth-token');
+    this.identity.setToken('');
     this.identity.remove();
     return this.http.post(`${environment.dataService}/logout`, {});
   }
