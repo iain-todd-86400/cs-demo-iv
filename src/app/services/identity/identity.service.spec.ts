@@ -163,6 +163,12 @@ describe('IdentityService', () => {
         expect(storage.remove).toHaveBeenCalledTimes(1);
         expect(storage.remove).toHaveBeenCalledWith('auth-token');
       });
+
+      it('caches the token', async () => {
+        await identity.setToken('IAmAToken');
+        expect(await identity.getToken()).toEqual('IAmAToken');
+        expect(storage.get).not.toHaveBeenCalled();
+      });
     });
 
     describe('getting', () => {

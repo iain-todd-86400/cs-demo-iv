@@ -37,6 +37,7 @@ export class IdentityService {
   }
 
   async setToken(token: string) {
+    this.token = token;
     await this.storage.ready();
     if (token) {
       this.storage.set(this.tokenKey, token);
