@@ -12,7 +12,7 @@ import { IdentityService } from '../identity';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
-  constructor(public identity: IdentityService) {}
+  constructor(private identity: IdentityService) {}
 
   intercept(
     req: HttpRequest<any>,

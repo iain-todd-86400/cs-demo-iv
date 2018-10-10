@@ -24,9 +24,7 @@ export class IdentityService {
   }
 
   get(): Observable<User> {
-    console.log('get user', this.user);
     if (!this.user) {
-      console.log('getting...');
       return this.http
         .get<User>(`${environment.dataService}/users/current`)
         .pipe(tap(u => (this.user = u)));
