@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
+import { NavController } from '@ionic/angular';
 
+import { AuthenticationService } from '../services/authentication';
 import { TeaCategory } from '../models/tea-category';
 import { TeaCategoriesService } from '../services/tea-categories';
 
@@ -11,9 +13,18 @@ import { TeaCategoriesService } from '../services/tea-categories';
 export class HomePage implements OnInit {
   categories: Array<TeaCategory>;
 
-  constructor(private teaCategories: TeaCategoriesService) {}
+  constructor(
+    private authentication: AuthenticationService,
+    private navController: NavController,
+    private teaCategories: TeaCategoriesService
+  ) {}
 
   ngOnInit() {
-    this.teaCategories.getAll().subscribe(x => this.categories = x);
+    this.teaCategories.getAll().subscribe(x => (this.categories = x));
+  }
+
+  logout() {
+    this.authentication.logout();
+    this.navController.navigateRoot('/login');
   }
 }
