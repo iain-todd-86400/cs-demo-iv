@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  dataService: 'https://world-of-teas.herokuapp.com/api'
+  dataService: 'https://cs-demo-api.herokuapp.com'
 };
