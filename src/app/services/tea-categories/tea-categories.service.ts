@@ -13,7 +13,7 @@ export class TeaCategoriesService {
 
   getAll(): Observable<Array<TeaCategory>> {
     return this.http.get<Array<TeaCategory>>(
-      `${environment.dataService}/protected/tea-categories`
+      `${environment.dataService}/tea-categories`
     );
   }
 }
