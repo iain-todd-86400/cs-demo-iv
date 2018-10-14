@@ -1,16 +1,30 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
+import {
+  async,
+  ComponentFixture,
+  fakeAsync,
+  TestBed,
+  tick
+} from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { IonicModule, NavController } from '@ionic/angular';
 
 import { of } from 'rxjs';
 
-import { AuthenticationService, createAuthenticationServiceMock } from '../services/authentication';
+import {
+  AuthenticationService,
+  createAuthenticationServiceMock
+} from '../services/authentication';
+import {
+  IdentityService,
+  createIdentityServiceMock
+} from '../services/identity';
 import { LoginPage } from './login.page';
 import { createNavControllerMock } from '../../../test/mocks';
 
 describe('LoginPage', () => {
   let authentication;
+  let identity;
   let navController;
 
   let component: LoginPage;
@@ -18,12 +32,14 @@ describe('LoginPage', () => {
 
   beforeEach(async(() => {
     authentication = createAuthenticationServiceMock();
+    identity = createIdentityServiceMock();
     navController = createNavControllerMock();
     TestBed.configureTestingModule({
       declarations: [LoginPage],
       imports: [FormsModule, IonicModule],
       providers: [
         { provide: AuthenticationService, useValue: authentication },
+        { provide: IdentityService, useValue: identity },
         { provide: NavController, useValue: navController }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
@@ -38,6 +54,112 @@ describe('LoginPage', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  describe('on view enter', () => {
+    describe('with biometrics enabled', () => {
+      beforeEach(() => {
+        identity.isBiometricsEnabled.and.returnValue(Promise.resolve(true));
+      });
+
+      describe('with a stored token', () => {
+        beforeEach(() => {
+          identity.hasStoredToken.and.returnValue(Promise.resolve(true));
+        });
+
+        it('displays the biometric login button', fakeAsync(() => {
+          component.ionViewWillEnter();
+          tick();
+          expect(component.displayBiometricLogin).toEqual(true);
+        }));
+
+        it('gets the biometric type', fakeAsync(() => {
+          identity.getBiometricType.and.returnValue(Promise.resolve('blood'));
+          component.ionViewWillEnter();
+          tick();
+          expect(component.biometricType).toEqual('blood');
+        }));
+      });
+
+      describe('without a stored token', () => {
+        it('hides the biometric login button', fakeAsync(() => {
+          component.ionViewWillEnter();
+          tick();
+          expect(component.displayBiometricLogin).toEqual(false);
+        }));
+
+        it('does not get the biometric type', fakeAsync(() => {
+          identity.getBiometricType.and.returnValue(Promise.resolve('blood'));
+          component.ionViewWillEnter();
+          tick();
+          expect(identity.getBiometricType).not.toHaveBeenCalled();
+          expect(component.biometricType).toEqual('');
+        }));
+      });
+    });
+
+    describe('with biometrics disabled', () => {
+      beforeEach(() => {
+        identity.hasStoredToken.and.returnValue(Promise.resolve(true));
+      });
+
+      it('hides the biometric login button', fakeAsync(() => {
+        component.ionViewWillEnter();
+        tick();
+        expect(component.displayBiometricLogin).toEqual(false);
+      }));
+
+      it('does not get the biometric type', fakeAsync(() => {
+        identity.getBiometricType.and.returnValue(Promise.resolve('blood'));
+        component.ionViewWillEnter();
+        tick();
+        expect(identity.getBiometricType).not.toHaveBeenCalled();
+        expect(component.biometricType).toEqual('');
+      }));
+    });
+  });
+
+  describe('clicking the biometric button', () => {
+    it('determines if the user has a stored token', async () => {
+      await component.biometricAuthClicked();
+      expect(identity.hasStoredToken).toHaveBeenCalledTimes(1);
+    });
+
+    describe('with a stored token', () => {
+      beforeEach(() => {
+        identity.hasStoredToken.and.returnValue(Promise.resolve(true));
+      });
+
+      describe('when the token is blank', () => {
+        it('does not navigate', async () => {
+          await component.biometricAuthClicked();
+          expect(navController.navigateRoot).not.toHaveBeenCalled();
+        });
+      });
+
+      describe('when the token is non-blank', () => {
+        beforeEach(() => {
+          identity.getStoredToken.and.returnValue(
+            Promise.resolve('I am a stored token')
+          );
+        });
+
+        it('navigates home', async () => {
+          await component.biometricAuthClicked();
+          expect(navController.navigateRoot).toHaveBeenCalledTimes(1);
+          expect(navController.navigateRoot).toHaveBeenCalledWith(
+            '/tabs/(home:home)'
+          );
+        });
+      });
+    });
+
+    describe('when there is no stored token', () => {
+      it('does not navigate', async () => {
+        await component.biometricAuthClicked();
+        expect(navController.navigateRoot).not.toHaveBeenCalled();
+      });
+    });
   });
 
   describe('clicking the "Sign in" button', () => {
@@ -97,7 +219,9 @@ describe('LoginPage', () => {
 
       it('displays an error message', () => {
         component.signInClicked();
-        expect(component.errorMessage).toEqual('Invalid e-mail address or password');
+        expect(component.errorMessage).toEqual(
+          'Invalid e-mail address or password'
+        );
       });
 
       it('does not navigate', () => {

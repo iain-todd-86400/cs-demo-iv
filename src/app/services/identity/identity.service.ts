@@ -1,25 +1,42 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { Router } from '@angular/router';
 
 import { Observable, of, Subject } from 'rxjs';
 import { tap } from 'rxjs/operators';
 
-import { Storage } from '@ionic/storage';
+import { Platform } from '@ionic/angular';
+import {
+  AuthMethod,
+  IonicIdentityVaultUser,
+  IonicNativeAuthPlugin
+} from 'ionic-enterprise-identity-vault';
 
+import { BrowserAuthPlugin } from '../browser-auth/browser-auth.plugin';
 import { environment } from '../../../environments/environment';
 import { User } from '../../models/user';
 
 @Injectable({
   providedIn: 'root'
 })
-export class IdentityService {
-  private tokenKey = 'auth-token';
-  private token: string;
+export class IdentityService extends IonicIdentityVaultUser {
   private user: User;
 
   changed: Subject<User>;
 
-  constructor(private http: HttpClient, private storage: Storage) {
+  constructor(
+    private browserAuthPlugin: BrowserAuthPlugin,
+    private http: HttpClient,
+    public platform: Platform, // TODO: ask why this is public...
+    private router: Router
+  ) {
+    super(platform, {
+      authMethod: AuthMethod.PinFallback,
+      enableBiometrics: true,
+      lockOnClose: false,
+      lockAfter: 5000,
+      hideScreenOnBackground: true
+    });
     this.changed = new Subject();
   }
 
@@ -33,31 +50,39 @@ export class IdentityService {
     }
   }
 
-  set(user: User): void {
+  async set(user: User, token: string): Promise<void> {
     this.user = user;
+    await this.saveSession(user.email, token);
     this.changed.next(this.user);
   }
 
-  remove(): void {
+  async remove(): Promise<void> {
+    await this.logout();
     this.user = undefined;
     this.changed.next(this.user);
   }
 
-  async setToken(token: string): Promise<void> {
-    this.token = token;
-    await this.storage.ready();
-    if (token) {
-      this.storage.set(this.tokenKey, token);
-    } else {
-      this.storage.remove(this.tokenKey);
-    }
-  }
-
   async getToken(): Promise<string> {
     if (!this.token) {
-      await this.storage.ready();
-      this.token = await this.storage.get(this.tokenKey);
+      await this.ready();
     }
-    return this.token;
+    return Promise.resolve(this.token);
+  }
+
+  onSessionRestored(token: string) {
+    this.token = token;
+  }
+
+  onVaultLocked() {
+    this.token = null;
+    this.router.navigate(['login']);
+  }
+
+  getPlugin(): IonicNativeAuthPlugin {
+    if (this.platform.is('cordova')) {
+      return super.getPlugin();
+    } else {
+      return this.browserAuthPlugin;
+    }
   }
 }

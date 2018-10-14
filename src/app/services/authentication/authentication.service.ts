@@ -23,17 +23,21 @@ export class AuthenticationService {
           password: password
         }
       )
-      .pipe(flatMap(r => from(this.unpackResponse(r))));
+      .pipe(
+        tap(async r => {
+          if (r.success) {
+            this.identity.set(r.user, r.token);
+          }
+        }),
+        map(r => r.success)
+      );
   }
 
   logout(): Observable<any> {
     return this.http.post(`${environment.dataService}/logout`, {}).pipe(
-      flatMap(() =>
-        from((async () => {
-          await this.identity.setToken('');
-          this.identity.remove();
-        }
-      )()))
+      tap(() => {
+        this.identity.remove();
+      })
     );
   }
 

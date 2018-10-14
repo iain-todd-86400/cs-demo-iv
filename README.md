@@ -29,7 +29,7 @@ This is an Ionic application with authentication implemented in a fairly standar
 
 This scheme works ok for low security applictions. For higher security applications, though, it has a couple of flaws:
 
-1. anyone who gains access to the phone has access to the application
+1. anyone who gains access to the phone has access to the application since there is no biometric locking of the token
 1. anyone who gains access to the phone _could_ gain access to the token
 
 ## With Identity Vault - Branch `feature/identityVault`

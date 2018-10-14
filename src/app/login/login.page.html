@@ -18,6 +18,9 @@
     </ion-list>
 
     <ion-button expand="full" [disabled]="!loginForm.form.valid" (click)="signInClicked()" color="tertiary">Sign in</ion-button>
+    <div class="biometric-login" text-center *ngIf="displayBiometricLogin" (click)="biometricAuthClicked()">
+      <ion-icon name="finger-print"></ion-icon>
+    </div>
 
     <div *ngIf="emailInput.invalid && (emailInput.dirty || emailInput.touched)" class="error-message">
       <div *ngIf="emailInput.errors.email">

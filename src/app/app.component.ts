@@ -21,7 +21,9 @@ export class AppComponent {
   }
 
   initializeApp() {
-    this.identity.get();
+    this.identity.ready().then(() => {
+      this.identity.get();
+    });
     this.platform.ready().then(() => {
       this.statusBar.styleDefault();
       this.splashScreen.hide();

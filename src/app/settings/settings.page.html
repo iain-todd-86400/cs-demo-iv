@@ -13,9 +13,13 @@
 </ion-header>
 
 <ion-content text-center padding>
-  <h1>Nothing to see here</h1>
-  <h2>Move along now...</h2>
-  <div>This is the unsecure branch that just stores the token in one of the web storage mechanisms. Settings can be
-    set in the Identity Vault branch. This page is just a placeholder for future
-    excitment and fun.</div>
-</ion-content>
+    <ion-list>
+      <ion-item>
+        <ion-label>Use Biometrics</ion-label>
+        <ion-toggle [(ngModel)]="useBiometrics" (ionChange)="useBiometricsChanged()"></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label>{{biometricType}}</ion-label>
+      </ion-item>
+    </ion-list>
+  </ion-content>

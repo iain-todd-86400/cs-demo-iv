@@ -28,7 +28,14 @@ export function createOverlayControllerMock(name: string, element?: any) {
 
 export function createPlatformMock() {
   return jasmine.createSpyObj('Platform', {
-    ready: Promise.resolve()
+    ready: Promise.resolve(),
+    is: false
+  });
+}
+
+export function createRouterMock() {
+  return jasmine.createSpyObj('Router', {
+    navigate: Promise.resolve(true)
   });
 }
 

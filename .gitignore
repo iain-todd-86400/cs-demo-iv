@@ -33,4 +33,5 @@ $RECYCLE.BIN/
 Thumbs.db
 UserInterfaceState.xcuserstate
 
-enterprise-auth-master/
+enterprise-auth-master/*
+!enterprise-auth-master/.gitkeep

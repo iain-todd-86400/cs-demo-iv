@@ -3,23 +3,34 @@ import {
   HttpClientTestingModule,
   HttpTestingController
 } from '@angular/common/http/testing';
+import { Router } from '@angular/router';
 
-import { Storage } from '@ionic/storage';
+import { Platform } from '@ionic/angular';
 
-import { createStorageMock } from '../../../../test/mocks';
+import { createPlatformMock, createRouterMock } from '../../../../test/mocks';
 import { environment } from '../../../environments/environment';
+import { BrowserAuthPlugin } from '../browser-auth/browser-auth.plugin';
+import { BrowserAuthService } from '../browser-auth/browser-auth.service';
 import { IdentityService } from './identity.service';
 
 describe('IdentityService', () => {
   let httpTestingController: HttpTestingController;
   let identity: IdentityService;
-  let storage;
+  let platform;
+  let router;
 
   beforeEach(() => {
-    storage = createStorageMock();
+    platform = createPlatformMock();
+    router = createRouterMock();
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
-      providers: [IdentityService, { provide: Storage, useValue: storage }]
+      providers: [
+        BrowserAuthPlugin,
+        BrowserAuthService,
+        IdentityService,
+        { provide: Platform, useValue: platform },
+        { provide: Router, useValue: router }
+      ]
     });
 
     httpTestingController = TestBed.get(HttpTestingController);
@@ -90,12 +101,15 @@ describe('IdentityService', () => {
 
   describe('set', () => {
     it('sets the user, caching it', () => {
-      identity.set({
-        id: 314159,
-        firstName: 'Sherry',
-        lastName: 'Pigh',
-        email: 'alamode@test.org'
-      });
+      identity.set(
+        {
+          id: 314159,
+          firstName: 'Sherry',
+          lastName: 'Pigh',
+          email: 'alamode@test.org'
+        },
+        'I am a token of some sort'
+      );
       identity.get().subscribe(u =>
         expect(u).toEqual({
           id: 314159,
@@ -124,10 +138,10 @@ describe('IdentityService', () => {
       httpTestingController.verify();
     });
 
-    it('remove the user from the cache (thus forcing a GET on the next get())', () => {
+    it('remove the user from the cache (thus forcing a GET on the next get())', async () => {
       identity.get().subscribe();
       httpTestingController.verify();
-      identity.remove();
+      await identity.remove();
       identity.get().subscribe();
       const req = httpTestingController.expectOne(
         `${environment.dataService}/users/current`
@@ -143,57 +157,17 @@ describe('IdentityService', () => {
     });
   });
 
-  describe('token', () => {
-    describe('setting', () => {
-      it('waits for the storage to be ready', () => {
-        identity.setToken('IAmAToken');
-        expect(storage.ready).toHaveBeenCalledTimes(1);
-      });
-
-      it('sets the token', async () => {
-        await identity.setToken('IAmAToken');
-        expect(storage.remove).not.toHaveBeenCalled();
-        expect(storage.set).toHaveBeenCalledTimes(1);
-        expect(storage.set).toHaveBeenCalledWith('auth-token', 'IAmAToken');
-      });
-
-      it('clears the token', async () => {
-        await identity.setToken('');
-        expect(storage.set).not.toHaveBeenCalled();
-        expect(storage.remove).toHaveBeenCalledTimes(1);
-        expect(storage.remove).toHaveBeenCalledWith('auth-token');
-      });
-
-      it('caches the token', async () => {
-        await identity.setToken('IAmAToken');
-        expect(await identity.getToken()).toEqual('IAmAToken');
-        expect(storage.get).not.toHaveBeenCalled();
-      });
+  describe('on vault locked', () => {
+    it('clears the token', () => {
+      identity.token = 'adsflkkfkgooefkgkkeof';
+      identity.onVaultLocked();
+      expect(identity.token).toEqual(null);
     });
 
-    describe('getting', () => {
-      it('waits for the storage to be ready', () => {
-        identity.getToken();
-        expect(storage.ready).toHaveBeenCalledTimes(1);
-      });
-
-      it('gets the stored token', async() => {
-        await identity.getToken();
-        expect(storage.get).toHaveBeenCalledTimes(1);
-        expect(storage.get).toHaveBeenCalledWith('auth-token');
-      });
-
-      it('returns the stored token', async () => {
-        storage.get.and.returnValue(Promise.resolve('ThisIsAToken'));
-        expect(await identity.getToken()).toEqual('ThisIsAToken');
-      });
-
-      it('caches the token', async () => {
-        storage.get.and.returnValue(Promise.resolve('ThisIsAToken'));
-        await identity.getToken();
-        expect(await identity.getToken()).toEqual('ThisIsAToken');
-        expect(storage.get).toHaveBeenCalledTimes(1);
-      });
+    it('navigates to the login page', () => {
+      identity.onVaultLocked();
+      expect(router.navigate).toHaveBeenCalledTimes(1);
+      expect(router.navigate).toHaveBeenCalledWith(['login']);
     });
   });
 });

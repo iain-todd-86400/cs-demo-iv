@@ -3,9 +3,12 @@ import { of } from 'rxjs';
 export function createIdentityServiceMock() {
   return jasmine.createSpyObj('IdentityService', {
     get: of(null),
-    set: undefined,
+    hasStoredToken: Promise.resolve(false),
+    getBiometricType: Promise.resolve(''),
+    getStoredToken: Promise.resolve(''),
+    isBiometricsEnabled: Promise.resolve(false),
+    ready: Promise.resolve(),
     remove: undefined,
-    setToken: Promise.resolve(),
-    getToken: Promise.resolve()
+    set: undefined
   });
 }
