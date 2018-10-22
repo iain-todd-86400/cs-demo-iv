@@ -38,9 +38,9 @@ describe('TeaCategoriesService', () => {
       categories = deepCopy(testTeaCategories);
     });
 
-    it('gets all of the car classes', () => {
+    it('gets all of the tea categories', () => {
       teaCategoriesService.getAll().subscribe(c => expect(c).toEqual(testTeaCategories));
-      const req = httpTestingController.expectOne(`${environment.dataService}/protected/tea-categories`);
+      const req = httpTestingController.expectOne(`${environment.dataService}/tea-categories`);
       expect(req.request.method).toEqual('GET');
       req.flush(categories);
       httpTestingController.verify();

@@ -12,10 +12,7 @@ import { User } from '../../models/user';
   providedIn: 'root'
 })
 export class AuthenticationService {
-  constructor(
-    private http: HttpClient,
-    private identity: IdentityService
-  ) {}
+  constructor(private http: HttpClient, private identity: IdentityService) {}
 
   login(email: string, password: string): Observable<boolean> {
     return this.http
@@ -38,8 +35,11 @@ export class AuthenticationService {
   }
 
   logout(): Observable<any> {
-    this.identity.setToken('');
-    this.identity.remove();
-    return this.http.post(`${environment.dataService}/logout`, {});
+    return this.http.post(`${environment.dataService}/logout`, {}).pipe(
+      tap(() => {
+        this.identity.setToken('');
+        this.identity.remove();
+      })
+    );
   }
 }
