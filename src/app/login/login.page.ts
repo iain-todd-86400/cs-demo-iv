@@ -14,17 +14,17 @@ export class LoginPage {
   errorMessage: string;
 
   constructor(
-    private auth: AuthenticationService,
-    private navCtrl: NavController
+    private authentication: AuthenticationService,
+    private navController: NavController
   ) {}
 
   signInClicked() {
-    this.auth.login(this.email, this.password).subscribe((success: boolean) => {
+    this.authentication.login(this.email, this.password).subscribe((success: boolean) => {
       this.password = '';
       if (success) {
         this.email = '';
         this.errorMessage = '';
-        this.navCtrl.navigateRoot('/tabs/(home:home)');
+        this.navController.navigateRoot('/tabs/(home:home)');
       } else {
         this.errorMessage = 'Invalid e-mail address or password';
       }

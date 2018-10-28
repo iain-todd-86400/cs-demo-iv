@@ -12,15 +12,15 @@ describe('AuthenticationService', () => {
   let authentication: AuthenticationService;
   let httpTestingController: HttpTestingController;
 
-  let identityServiceMock;
+  let identity;
 
   beforeEach(() => {
-    identityServiceMock = createIdentityServiceMock();
+    identity = createIdentityServiceMock();
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
         AuthenticationService,
-        { provide: IdentityService, useValue: identityServiceMock }
+        { provide: IdentityService, useValue: identity }
       ]
     });
 
@@ -101,8 +101,8 @@ describe('AuthenticationService', () => {
         );
         req.flush(response);
         httpTestingController.verify();
-        expect(identityServiceMock.setToken).toHaveBeenCalledTimes(1);
-        expect(identityServiceMock.setToken).toHaveBeenCalledWith(
+        expect(identity.setToken).toHaveBeenCalledTimes(1);
+        expect(identity.setToken).toHaveBeenCalledWith(
           '48499501093kf00399sg'
         );
       });
@@ -116,8 +116,8 @@ describe('AuthenticationService', () => {
         );
         req.flush(response);
         httpTestingController.verify();
-        expect(identityServiceMock.set).toHaveBeenCalledTimes(1);
-        expect(identityServiceMock.set).toHaveBeenCalledWith({
+        expect(identity.set).toHaveBeenCalledTimes(1);
+        expect(identity.set).toHaveBeenCalledWith({
           id: 42,
           firstName: 'Douglas',
           lastName: 'Adams',
@@ -152,7 +152,7 @@ describe('AuthenticationService', () => {
         );
         req.flush(response);
         httpTestingController.verify();
-        expect(identityServiceMock.setToken).not.toHaveBeenCalled();
+        expect(identity.setToken).not.toHaveBeenCalled();
       });
 
       it('does not set the identity', () => {
@@ -164,7 +164,7 @@ describe('AuthenticationService', () => {
         );
         req.flush(response);
         httpTestingController.verify();
-        expect(identityServiceMock.set).not.toHaveBeenCalled();
+        expect(identity.set).not.toHaveBeenCalled();
       });
     });
   });
@@ -187,8 +187,8 @@ describe('AuthenticationService', () => {
         `${environment.dataService}/logout`
       );
       req.flush({});
-      expect(identityServiceMock.setToken).toHaveBeenCalledTimes(1);
-      expect(identityServiceMock.setToken).toHaveBeenCalledWith('');
+      expect(identity.setToken).toHaveBeenCalledTimes(1);
+      expect(identity.setToken).toHaveBeenCalledWith('');
     });
 
     it('remove the identity', () => {
@@ -197,7 +197,7 @@ describe('AuthenticationService', () => {
         `${environment.dataService}/logout`
       );
       req.flush({});
-      expect(identityServiceMock.remove).toHaveBeenCalledTimes(1);
+      expect(identity.remove).toHaveBeenCalledTimes(1);
     });
   });
 });

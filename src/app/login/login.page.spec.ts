@@ -10,21 +10,21 @@ import { LoginPage } from './login.page';
 import { createNavControllerMock } from '../../../test/mocks';
 
 describe('LoginPage', () => {
-  let authenticationServiceMock;
-  let navCtrl;
+  let authentication;
+  let navController;
 
   let component: LoginPage;
   let fixture: ComponentFixture<LoginPage>;
 
   beforeEach(async(() => {
-    authenticationServiceMock = createAuthenticationServiceMock();
-    navCtrl = createNavControllerMock();
+    authentication = createAuthenticationServiceMock();
+    navController = createNavControllerMock();
     TestBed.configureTestingModule({
       declarations: [LoginPage],
       imports: [FormsModule, IonicModule],
       providers: [
-        { provide: AuthenticationService, useValue: authenticationServiceMock },
-        { provide: NavController, useValue: navCtrl }
+        { provide: AuthenticationService, useValue: authentication },
+        { provide: NavController, useValue: navController }
       ],
       schemas: [CUSTOM_ELEMENTS_SCHEMA]
     }).compileComponents();
@@ -43,14 +43,14 @@ describe('LoginPage', () => {
   describe('clicking the "Sign in" button', () => {
     it('performs the login', () => {
       component.signInClicked();
-      expect(authenticationServiceMock.login).toHaveBeenCalledTimes(1);
+      expect(authentication.login).toHaveBeenCalledTimes(1);
     });
 
     it('passes the entered e-mail and password', () => {
       component.email = 'jimmy@test.org';
       component.password = 'I Crack the Corn';
       component.signInClicked();
-      expect(authenticationServiceMock.login).toHaveBeenCalledWith(
+      expect(authentication.login).toHaveBeenCalledWith(
         'jimmy@test.org',
         'I Crack the Corn'
       );
@@ -58,7 +58,7 @@ describe('LoginPage', () => {
 
     describe('on success', () => {
       beforeEach(() => {
-        authenticationServiceMock.login.and.returnValue(of(true));
+        authentication.login.and.returnValue(of(true));
         component.email = 'jimmy@test.org';
         component.password = 'I Crack the Corn';
       });
@@ -77,14 +77,14 @@ describe('LoginPage', () => {
 
       it('navigates to the main page', () => {
         component.signInClicked();
-        expect(navCtrl.navigateRoot).toHaveBeenCalledTimes(1);
-        expect(navCtrl.navigateRoot).toHaveBeenCalledWith('/tabs/(home:home)');
+        expect(navController.navigateRoot).toHaveBeenCalledTimes(1);
+        expect(navController.navigateRoot).toHaveBeenCalledWith('/tabs/(home:home)');
       });
     });
 
     describe('on failure', () => {
       beforeEach(() => {
-        authenticationServiceMock.login.and.returnValue(of(false));
+        authentication.login.and.returnValue(of(false));
         component.email = 'jimmy@test.org';
         component.password = 'I Crack the Corn';
       });
@@ -102,7 +102,7 @@ describe('LoginPage', () => {
 
       it('does not navigate', () => {
         component.signInClicked();
-        expect(navCtrl.navigateRoot).not.toHaveBeenCalled();
+        expect(navController.navigateRoot).not.toHaveBeenCalled();
       });
     });
   });
