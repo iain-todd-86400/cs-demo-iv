@@ -14,10 +14,7 @@ import { IdentityService } from '../identity';
 
 @Injectable()
 export class UnauthInterceptor implements HttpInterceptor {
-  constructor(
-    private identity: IdentityService,
-    private navController: NavController
-  ) {}
+  constructor(private navController: NavController) {}
 
   intercept(
     req: HttpRequest<any>,
@@ -28,8 +25,6 @@ export class UnauthInterceptor implements HttpInterceptor {
         (event: HttpEvent<any>) => {},
         (err: any) => {
           if (err instanceof HttpErrorResponse && err.status === 401) {
-            this.identity.remove();
-            this.identity.setToken('');
             this.navController.navigateRoot('/login');
           }
         }
