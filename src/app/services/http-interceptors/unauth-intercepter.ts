@@ -10,8 +10,6 @@ import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { NavController } from '@ionic/angular';
 
-import { IdentityService } from '../identity';
-
 @Injectable()
 export class UnauthInterceptor implements HttpInterceptor {
   constructor(private navController: NavController) {}
