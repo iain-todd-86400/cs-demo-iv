@@ -41,9 +41,9 @@ cordova plugin add ./enterprise-auth-master/cordova/ionic-plugin-native-auth
 
 #### Inherit from `IonicIdentityVaultUser`
 
-There should be a service in the code that represents the currently logged in user. This service will need to be updated to inherit from `IonicIdentityVaultUser`. Any code that is specific to the non-secure storage of the token will also need to be stripped.
+There is generally a service in any codebase that represents the currently logged in user. In the code in this repo, that service is called the `Identity` service. In other systems it may go by names like `User` or `CurrentUser`. This service will need to be updated to inherit from `IonicIdentityVaultUser`. Any code that is specific to the non-secure storage of the token will also need to be stripped.
 
-In the code in this repo, that service is called the `Identity` service. In other systems it may go by names like `User` or `CurrentUser`.
+##### Configuration
 
 The first task that needs to be done is to configure Identity Vault via the constructor. Note that some of this code already existed in the `Identity` class, but calling `super` with the configuration has been added:
 
@@ -64,17 +64,40 @@ The first task that needs to be done is to configure Identity Vault via the cons
   }
 ```
 
+##### Removing the User
+
+Removing the user now calls the `logout()` in the base class. This clears and locks the vault, effectivly clearing the token (via the `onVaultLocked()` method).
+
+##### Seting the User
+
+The original code set the user and the token as two seperate calls. The new code combines this into a single call. A couple of criteria went into this decision:
+
+1. saving the session in the vault requires the token as well as information from the user
+1. there is never a need to set the user without a token
+1. the original code handled clearing the token from storage, removing the token from the vault is handled differently
+
+##### Getting the Token
+
+The original code for `getToken()` would grab the token from storage if it had not already done so. The new code it similar and looks like this:
+
+```TypeScript
+  async getToken(): Promise<string> {
+    if (!this.token) {
+      await this.ready();
+    }
+    return Promise.resolve(this.token);
+  }
+```
+
+On startup, the base class fetches the token from the vault. Once that is complete, the token is initialized and `ready()` will resolve. From that point forward, the token is set by a user logging in or the session being retored. Likewise, the token is cleared by the user logging out or the vault being locked. Therefore, the existance or not of a token is always accurate unless the application is starting up, in which case the application needs to wait for the base class to be `ready()` before knowing if the token is set or not. Thus, if the token is not set the application ensures that the state is `ready()` before returning.
+
+##### Override Base Functionallity
+
 The `IonicIdentityVaultUser` class contains several methods that can be overridden in the child class. Here are a few of them:
 
 - **onVaultLocked** - handle the vault being locked, generally this involves clearing the token and navigating to the login page
 - **onSessionRestored** - takes a token, called when he vault is unlocked and the seesion retored, generally set the token to the one passed to the method
 - **getPlugin** - gets the plugin object, useful for testing this method could also return a fully functional service to replace the plugin when the application is run in the web if running in the web is a desired outcome
-
-#### Implement Startup Routing
-
-The original code always started on the "Home" tab of the tabs page. The HTTP intersceptor would then redirect to the login page if the fetch failed. This required the intersceptor that placed the token in the header to work asycronously.
-
-That strategy could still be followed in this application, but I chose instead to wait for the token to load and then act accordingly. The end result was some slightly more complex code in the tabs page and a simplified intersceptor.
 
 #### Save the Token in the Vault
 
