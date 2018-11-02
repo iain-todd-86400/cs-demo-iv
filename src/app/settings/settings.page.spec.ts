@@ -2,16 +2,16 @@ import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { NavController } from '@ionic/angular';
 
-import { ContactPage } from './contact.page';
+import { SettingsPage } from './settings.page';
 import {
   createAuthenticationServiceMock,
   AuthenticationService
 } from '../services/authentication';
 import { createNavControllerMock } from '../../../test/mocks';
 
-describe('ContactPage', () => {
-  let component: ContactPage;
-  let fixture: ComponentFixture<ContactPage>;
+describe('SettingsPage', () => {
+  let component: SettingsPage;
+  let fixture: ComponentFixture<SettingsPage>;
   let authentication;
   let navController;
 
@@ -19,7 +19,7 @@ describe('ContactPage', () => {
     authentication = createAuthenticationServiceMock();
     navController = createNavControllerMock();
     TestBed.configureTestingModule({
-      declarations: [ContactPage],
+      declarations: [SettingsPage],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [
         { provide: AuthenticationService, useValue: authentication },
@@ -29,7 +29,7 @@ describe('ContactPage', () => {
   }));
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ContactPage);
+    fixture = TestBed.createComponent(SettingsPage);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

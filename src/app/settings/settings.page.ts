@@ -3,11 +3,11 @@ import { NavController } from '@ionic/angular';
 import { AuthenticationService } from '../services/authentication';
 
 @Component({
-  selector: 'app-contact',
-  templateUrl: 'contact.page.html',
-  styleUrls: ['contact.page.scss']
+  selector: 'app-settings',
+  templateUrl: 'settings.page.html',
+  styleUrls: ['settings.page.scss']
 })
-export class ContactPage {
+export class SettingsPage {
   constructor(
     private authentication: AuthenticationService,
     private navController: NavController
