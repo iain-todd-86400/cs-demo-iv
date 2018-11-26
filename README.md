@@ -32,6 +32,8 @@ Video-Implementation-Tutorial.url package.json
 
 ### Getting Started
 
+**Note:** these instructions apply to cases where the code is being updated from the `master` branch code. If the `feature/identityVault` branch is being used these steps have already been done. In that case, just `npm i` and `npm start` (or otherwise build, such as `ionic cordova build android`).
+
 ```bash
 npm install ./enterprise-auth-master/lib
 cordova plugin add ./enterprise-auth-master/cordova/ionic-plugin-native-auth
