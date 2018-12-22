@@ -2,9 +2,6 @@ import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 
 import { TabsPage } from './tabs.page';
-import { HomePage } from '../home/home.page';
-import { AboutPage } from '../about/about.page';
-import { SettingsPage } from '../settings/settings.page';
 
 const routes: Routes = [
   {
@@ -12,30 +9,42 @@ const routes: Routes = [
     component: TabsPage,
     children: [
       {
-        path: '',
-        redirectTo: '/tabs/(home:home)',
-        pathMatch: 'full',
-      },
-      {
         path: 'home',
-        outlet: 'home',
-        component: HomePage
+        children: [
+          {
+            path: '',
+            loadChildren: '../home/home.module#HomePageModule'
+          }
+        ]
       },
       {
         path: 'about',
-        outlet: 'about',
-        component: AboutPage
+        children: [
+          {
+            path: '',
+            loadChildren: '../about/about.module#AboutPageModule'
+          }
+        ]
       },
       {
         path: 'settings',
-        outlet: 'settings',
-        component: SettingsPage
+        children: [
+          {
+            path: '',
+            loadChildren: '../settings/settings.module#SettingsPageModule'
+          }
+        ]
+      },
+      {
+        path: '',
+        redirectTo: '/tabs/home',
+        pathMatch: 'full'
       }
     ]
   },
   {
     path: '',
-    redirectTo: '/tabs/(home:home)',
+    redirectTo: '/tabs/home',
     pathMatch: 'full'
   }
 ];

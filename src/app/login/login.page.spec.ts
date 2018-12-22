@@ -78,7 +78,7 @@ describe('LoginPage', () => {
       it('navigates to the main page', () => {
         component.signInClicked();
         expect(navController.navigateRoot).toHaveBeenCalledTimes(1);
-        expect(navController.navigateRoot).toHaveBeenCalledWith('/tabs/(home:home)');
+        expect(navController.navigateRoot).toHaveBeenCalledWith('/tabs/home');
       });
     });
 

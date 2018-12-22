@@ -24,7 +24,7 @@ export class LoginPage {
       if (success) {
         this.email = '';
         this.errorMessage = '';
-        this.navController.navigateRoot('/tabs/(home:home)');
+        this.navController.navigateRoot('/tabs/home');
       } else {
         this.errorMessage = 'Invalid e-mail address or password';
       }
