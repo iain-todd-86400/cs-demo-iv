@@ -1,6 +1,6 @@
 export function createNavControllerMock() {
   return jasmine.createSpyObj('NavController', [
-    'goBack',
+    'back',
     'navigateForward',
     'navigateRoot'
   ]);
