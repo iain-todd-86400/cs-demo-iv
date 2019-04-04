@@ -2,6 +2,16 @@
 
 This application shows the use of Ionic's Identity Vault within a mobile application. We assume that you have access to Ioinic's Identity Vault product. If this is not the case, please contact our sales department.
 
+## Building (either branch)
+
+- `npm i`
+- `ionic cordova platform add ios`
+- `npm run build:ios`
+- `ionic cordova platform add android`
+- `npm run build:md`
+
+The application can be run in the browser via `npm start`. When doing so, however, the [CS Demo API](https://github.com/ionic-team/cs-demo-api) will need to also be running locally.
+
 ## Without Identity Vault - Branch `master`
 
 This is an Ionic application with authentication implemented in a fairly standard manner without anything fancy being used to secure the token. Here are the highlights:
@@ -17,18 +27,19 @@ This scheme works ok for low security applictions. For higher security applicati
 
 ## With Identity Vault - Branch `feature/identityVault`
 
-In order to build this branch, please unpack the Identity Vault package that you were supplied with and place its contents in a folder called `enterprise-auth-master` at the root of this project.
+**Note:** In order to build and run the demo you will need an Ionic Enterprise API key.
 
-```bash
-~/Projects/Demos/cs-demo-iv (feature/identityVault): ls enterprise-auth-master/
-DOCUMENTATION.url                 Video-Overview-Presentation.url
-Identity Vault Factsheet.pdf      Video-Using-Multiple-Tokens.url
-Overview-PDF.pdf                  cordova
-Overview-PowerPoint.pptx          demo
-README.md                         demo-no-identity-vault
-Video-HTTP-Interceptor.url        lib
-Video-Implementation-Tutorial.url package.json
-```
+If you already had the platforms installed when using the `master` branch, it is best to do a full clean as such:
+
+- `rm -rf node_modules plugins platforms`
+- `npm i`
+- `npm run build --prod`
+- `cordova platform add ios`
+- `cordova platform add android`
+- `npm run build:ios`
+- `npm run build:md`
+
+**Note:** if the first `cordova platform add` fails with a message about a missing `API.js` file, just run it a second time and it should work.
 
 ### Getting Started
 
