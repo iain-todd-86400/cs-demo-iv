@@ -4,7 +4,8 @@
 // The list of which env maps to which file can be found in `.angular-cli.json`.
 export const environment = {
   production: false,
-  dataService: 'http://localhost:5000'
+  //dataService: 'http://localhost:5000' // switch to this to run local
+  dataService: 'https://cs-demo-api.herokuapp.com'
 };
 
 /*
