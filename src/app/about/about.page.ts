@@ -14,7 +14,8 @@ export class AboutPage {
   ) {}
 
   logout() {
-    this.authentication.logout();
-    this.navController.navigateRoot('/login');
+    this.authentication
+      .logout()
+      .subscribe(() => this.navController.navigateRoot('/login'));
   }
 }
