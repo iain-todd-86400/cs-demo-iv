@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { NavController } from '@ionic/angular';
 
 import { AuthenticationService } from '../services/authentication';
@@ -10,7 +10,7 @@ import { TeaCategoriesService } from '../services/tea-categories';
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss']
 })
-export class HomePage implements OnInit {
+export class HomePage {
   categories: Array<TeaCategory>;
 
   constructor(
@@ -19,7 +19,7 @@ export class HomePage implements OnInit {
     private teaCategories: TeaCategoriesService
   ) {}
 
-  ngOnInit() {
+  ionViewDidEnter() {
     this.teaCategories.getAll().subscribe(x => (this.categories = x));
   }
 

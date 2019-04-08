@@ -12,6 +12,11 @@ This application shows the use of Ionic's Identity Vault within a mobile applica
 
 The application can be run in the browser via `npm start`.
 
+A test user exists with the following credentials:
+
+email: test@test.com
+password: test
+
 It is also possible to use a local API. See the `src/environments/environment.ts` file for details. When doing so, the [CS Demo API](https://github.com/ionic-team/cs-demo-api) will need to be running locally.
 
 ## Without Identity Vault - Branch `master`
