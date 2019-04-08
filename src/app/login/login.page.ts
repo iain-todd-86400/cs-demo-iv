@@ -3,6 +3,7 @@ import { NavController } from '@ionic/angular';
 
 import { AuthenticationService } from '../services/authentication';
 import { IdentityService } from '../services/identity';
+import { AuthMode } from '@ionic-enterprise/identity-vault';
 
 @Component({
   selector: 'app-login',
@@ -14,8 +15,8 @@ export class LoginPage {
   password: string;
   errorMessage: string;
 
-  biometricType: string;
-  displayBiometricLogin: boolean;
+  loginType: string;
+  displayVaultLogin: boolean;
 
   constructor(
     private authentication: AuthenticationService,
@@ -25,18 +26,18 @@ export class LoginPage {
 
   ionViewWillEnter() {
     try {
-      this.initBiometrics();
+      this.initLoginType();
     } catch (e) {
       console.error('Unable to check token status', e);
     }
   }
 
-  async biometricAuthClicked() {
-    const hasToken = await this.identity.hasStoredToken();
+  async unlockClicked() {
+    const hasSession = await this.identity.hasStoredSession();
 
-    if (hasToken) {
-      const token = await this.identity.getStoredToken();
-      if (token) {
+    if (hasSession) {
+      const session = await this.identity.restoreSession();
+      if (session && session.token) {
         this.goToApp();
         return;
       }
@@ -46,37 +47,60 @@ export class LoginPage {
   }
 
   signInClicked() {
-    this.authentication.login(this.email, this.password).subscribe((success: boolean) => {
-      this.password = '';
-      if (success) {
-        this.email = '';
-        this.errorMessage = '';
-        this.navController.navigateRoot('/tabs/home');
-      } else {
-        this.errorMessage = 'Invalid e-mail address or password';
+    this.authentication.login(this.email, this.password).subscribe(
+      (success: boolean) => {
+        this.password = '';
+        if (success) {
+          this.email = '';
+          this.errorMessage = '';
+          this.navController.navigateRoot('/tabs/home');
+        } else {
+          this.errorMessage = 'Invalid e-mail address or password';
+        }
+      },
+      (err: any) => {
+        this.password = '';
+        this.errorMessage = 'Unknown login error';
+        console.error(err);
       }
-    });
+    );
   }
 
   private goToApp() {
-    this.navController.navigateRoot('/tabs/(home:home)');
+    this.navController.navigateRoot('/tabs/home');
   }
 
-  private async biometricsEnabled(): Promise<boolean> {
-    const res = await Promise.all([
-      this.identity.hasStoredToken(),
-      this.identity.isBiometricsEnabled()
-    ]);
-    return res[0] && res[1];
-  }
-
-  private async initBiometrics(): Promise<void> {
-    if (await this.biometricsEnabled()) {
-      this.displayBiometricLogin = true;
-      this.biometricType = await this.identity.getBiometricType();
+  private async initLoginType(): Promise<void> {
+    if (await this.identity.hasStoredSession()) {
+      this.displayVaultLogin = true;
+      const authMode = await this.identity.getAuthMode();
+      switch (authMode) {
+        case AuthMode.BiometricAndPasscode:
+          this.loginType = await this.translateBiometricType();
+          this.loginType += ' (Passcode Fallback)';
+          break;
+        case AuthMode.BiometricOnly:
+          this.loginType = await this.translateBiometricType();
+          break;
+        case AuthMode.PasscodeOnly:
+          this.loginType = 'Passcode';
+          break;
+      }
     } else {
-      this.displayBiometricLogin = false;
-      this.biometricType = '';
+      this.displayVaultLogin = false;
+      this.loginType = '';
     }
+  }
+
+  private async translateBiometricType(): Promise<string> {
+    const type = await this.identity.getBiometricType();
+    switch (type) {
+      case 'touchID':
+        return 'TouchID';
+      case 'faceID':
+        return 'FaceID';
+    }
+
+    return type;
   }
 }

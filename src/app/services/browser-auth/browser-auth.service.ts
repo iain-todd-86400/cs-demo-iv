@@ -1,47 +1,95 @@
 import { Injectable } from '@angular/core';
-import { IonicNativeAuthVaultService } from 'ionic-enterprise-identity-vault';
+import {BiometricType, IdentityVault} from '@ionic-enterprise/identity-vault';
 
 @Injectable({
   providedIn: 'root'
 })
-export class BrowserAuthService implements IonicNativeAuthVaultService {
-  clear(): Promise<void> {
+export class BrowserAuthService implements IdentityVault {
+
+  config = undefined;
+
+  unsubscribe() {
+      return Promise.resolve();
+  }
+
+  clear() {
     return Promise.resolve();
   }
 
-  lock(): Promise<void> {
+  lock() {
     return Promise.resolve();
   }
 
-  isLocked(): Promise<boolean> {
-    return Promise.resolve(true);
+  isLocked() {
+    return Promise.resolve(false);
   }
 
-  hasStoredToken(): Promise<boolean> {
-    return Promise.resolve(true);
+  isInUse() {
+    return Promise.resolve(false);
   }
 
-  getToken(): Promise<any> {
-    return Promise.resolve('IamAToken');
+  getConfig() {
+    return Promise.resolve(this.config);
   }
 
-  getStoredUsername(): Promise<any> {
-    return Promise.resolve('billy@jim.bob.com');
+  remainingAttempts() {
+    return Promise.resolve(5);
   }
 
-  storeToken(username: string, token: string): Promise<void> {
+  getUsername() {
+    return Promise.resolve('MyUsername');
+  }
+
+  storeToken(token: any) {
     return Promise.resolve();
   }
 
-  getBiometricType(): Promise<string> {
-    return Promise.resolve('blood');
+  getToken() {
+    return Promise.resolve('MyToken');
   }
 
-  setBiometricsEnabled(isBiometricsEnabled: boolean): Promise<void> {
+  storeValue(key: string, value: any) {
     return Promise.resolve();
   }
 
-  isBiometricsEnabled(): Promise<boolean> {
-    return Promise.resolve(true);
+  getValue(key: string) {
+    return Promise.resolve('MyValue');
+  }
+
+  getBiometricType() {
+    const none: BiometricType = 'none';
+    return Promise.resolve(none);
+  }
+
+  setBiometricsEnabled(isBiometricsEnabled: boolean) {
+    return Promise.resolve();
+  }
+
+  isBiometricsEnabled() {
+    return Promise.resolve(false);
+  }
+
+  isBiometricsAvailable() {
+    return Promise.resolve(false);
+  }
+
+  isPasscodeSetupNeeded() {
+    return Promise.resolve(false);
+  }
+
+  setPasscode(passcode?: string) {
+    return Promise.resolve();
+  }
+
+  isPasscodeEnabled() {
+    return Promise.resolve(false);
+  }
+
+  setPasscodeEnabled(isPasscodeEnabled: boolean) {
+    return Promise.resolve();
+  }
+
+  unlock(usingPasscode?: boolean, passcode?: string) {
+    return Promise.resolve();
   }
 }

@@ -136,9 +136,10 @@ describe('IdentityService', () => {
         email: 'thank.you@forthefish.com'
       });
       httpTestingController.verify();
+      spyOn(identity, 'logout').and.returnValue(Promise.resolve());
     });
 
-    it('remove the user from the cache (thus forcing a GET on the next get())', async () => {
+    it('removes the user from the cache (thus forcing a GET on the next get())', async () => {
       identity.get().subscribe();
       httpTestingController.verify();
       await identity.remove();
@@ -158,12 +159,6 @@ describe('IdentityService', () => {
   });
 
   describe('on vault locked', () => {
-    it('clears the token', () => {
-      identity.token = 'adsflkkfkgooefkgkkeof';
-      identity.onVaultLocked();
-      expect(identity.token).toEqual(null);
-    });
-
     it('navigates to the login page', () => {
       identity.onVaultLocked();
       expect(router.navigate).toHaveBeenCalledTimes(1);

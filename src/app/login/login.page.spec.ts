@@ -8,6 +8,7 @@ import {
 } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { IonicModule, NavController } from '@ionic/angular';
+import { AuthMode } from '@ionic-enterprise/identity-vault';
 
 import { of } from 'rxjs';
 
@@ -60,24 +61,25 @@ describe('LoginPage', () => {
     describe('with biometrics enabled', () => {
       beforeEach(() => {
         identity.isBiometricsEnabled.and.returnValue(Promise.resolve(true));
+        identity.getAuthMode.and.returnValue(Promise.resolve(AuthMode.BiometricOnly));
       });
 
       describe('with a stored token', () => {
         beforeEach(() => {
-          identity.hasStoredToken.and.returnValue(Promise.resolve(true));
+          identity.hasStoredSession.and.returnValue(Promise.resolve(true));
         });
 
         it('displays the biometric login button', fakeAsync(() => {
           component.ionViewWillEnter();
           tick();
-          expect(component.displayBiometricLogin).toEqual(true);
+          expect(component.displayVaultLogin).toEqual(true);
         }));
 
         it('gets the biometric type', fakeAsync(() => {
           identity.getBiometricType.and.returnValue(Promise.resolve('blood'));
           component.ionViewWillEnter();
           tick();
-          expect(component.biometricType).toEqual('blood');
+          expect(component.loginType).toEqual('blood');
         }));
       });
 
@@ -85,7 +87,7 @@ describe('LoginPage', () => {
         it('hides the biometric login button', fakeAsync(() => {
           component.ionViewWillEnter();
           tick();
-          expect(component.displayBiometricLogin).toEqual(false);
+          expect(component.displayVaultLogin).toEqual(false);
         }));
 
         it('does not get the biometric type', fakeAsync(() => {
@@ -93,70 +95,48 @@ describe('LoginPage', () => {
           component.ionViewWillEnter();
           tick();
           expect(identity.getBiometricType).not.toHaveBeenCalled();
-          expect(component.biometricType).toEqual('');
+          expect(component.loginType).toEqual('');
         }));
       });
     });
-
-    describe('with biometrics disabled', () => {
-      beforeEach(() => {
-        identity.hasStoredToken.and.returnValue(Promise.resolve(true));
-      });
-
-      it('hides the biometric login button', fakeAsync(() => {
-        component.ionViewWillEnter();
-        tick();
-        expect(component.displayBiometricLogin).toEqual(false);
-      }));
-
-      it('does not get the biometric type', fakeAsync(() => {
-        identity.getBiometricType.and.returnValue(Promise.resolve('blood'));
-        component.ionViewWillEnter();
-        tick();
-        expect(identity.getBiometricType).not.toHaveBeenCalled();
-        expect(component.biometricType).toEqual('');
-      }));
-    });
   });
 
-  describe('clicking the biometric button', () => {
-    it('determines if the user has a stored token', async () => {
-      await component.biometricAuthClicked();
-      expect(identity.hasStoredToken).toHaveBeenCalledTimes(1);
+  describe('clicking the unlock button', () => {
+    it('determines if the user has a stored session', async () => {
+      await component.unlockClicked();
+      expect(identity.hasStoredSession).toHaveBeenCalledTimes(1);
     });
 
-    describe('with a stored token', () => {
+    describe('with a stored session', () => {
       beforeEach(() => {
-        identity.hasStoredToken.and.returnValue(Promise.resolve(true));
+        identity.hasStoredSession.and.returnValue(Promise.resolve(true));
       });
 
       describe('when the token is blank', () => {
         it('does not navigate', async () => {
-          await component.biometricAuthClicked();
+          await component.unlockClicked();
           expect(navController.navigateRoot).not.toHaveBeenCalled();
         });
       });
 
       describe('when the token is non-blank', () => {
         beforeEach(() => {
-          identity.getStoredToken.and.returnValue(
-            Promise.resolve('I am a stored token')
+          identity.restoreSession.and.returnValue(
+            Promise.resolve({ token: 'I am a stored token' })
           );
         });
 
         it('navigates home', async () => {
-          await component.biometricAuthClicked();
+          await component.unlockClicked();
           expect(navController.navigateRoot).toHaveBeenCalledTimes(1);
-          expect(navController.navigateRoot).toHaveBeenCalledWith(
-            '/tabs/(home:home)'
-          );
+          expect(navController.navigateRoot).toHaveBeenCalledWith('/tabs/home');
         });
       });
     });
 
-    describe('when there is no stored token', () => {
+    describe('when there is no stored session', () => {
       it('does not navigate', async () => {
-        await component.biometricAuthClicked();
+        await component.unlockClicked();
         expect(navController.navigateRoot).not.toHaveBeenCalled();
       });
     });

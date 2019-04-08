@@ -91,6 +91,7 @@ describe('AuthenticationService', () => {
         req.flush(response);
         tick();
         httpTestingController.verify();
+        tick();
       }));
 
       it('sets the identity and token', () => {
@@ -103,12 +104,15 @@ describe('AuthenticationService', () => {
         req.flush(response);
         httpTestingController.verify();
         expect(identity.set).toHaveBeenCalledTimes(1);
-        expect(identity.set).toHaveBeenCalledWith({
-          id: 42,
-          firstName: 'Douglas',
-          lastName: 'Adams',
-          email: 'thank.you@forthefish.com'
-        }, '48499501093kf00399sg');
+        expect(identity.set).toHaveBeenCalledWith(
+          {
+            id: 42,
+            firstName: 'Douglas',
+            lastName: 'Adams',
+            email: 'thank.you@forthefish.com'
+          },
+          '48499501093kf00399sg'
+        );
       });
     });
 
@@ -128,6 +132,7 @@ describe('AuthenticationService', () => {
         req.flush(response);
         tick();
         httpTestingController.verify();
+        tick();
       }));
 
       it('does not set the identity', () => {
@@ -154,10 +159,11 @@ describe('AuthenticationService', () => {
       req.flush({});
       httpTestingController.verify();
       tick();
+      identity.remove();
       expect(fired).toBeTruthy();
     }));
 
-    it('remove the identity', () => {
+    it('remove the identity', fakeAsync(() => {
       authentication.logout().subscribe();
       const req = httpTestingController.expectOne(
         `${environment.dataService}/logout`

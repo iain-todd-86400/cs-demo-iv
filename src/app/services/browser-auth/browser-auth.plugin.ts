@@ -1,22 +1,15 @@
 import { Injectable } from '@angular/core';
 import {
-  IonicNativeAuthConfig,
+  IdentityVault, IdentityVaultConfig,
   IonicNativeAuthPlugin,
-  IonicNativeAuthService,
-  IonicNativeAuthVaultConfig,
-  IonicNativeAuthVaultService
-} from 'ionic-enterprise-identity-vault';
+} from '@ionic-enterprise/identity-vault';
 import { BrowserAuthService } from './browser-auth.service';
 
 @Injectable({ providedIn: 'root' })
 export class BrowserAuthPlugin implements IonicNativeAuthPlugin {
   constructor(private browserAuthService: BrowserAuthService) {}
 
-  setup(config: IonicNativeAuthConfig): IonicNativeAuthService {
-    return null;
-  }
-
-  createVault(config: IonicNativeAuthVaultConfig): IonicNativeAuthVaultService {
+  getVault(config: IdentityVaultConfig): IdentityVault {
     return this.browserAuthService;
   }
 }

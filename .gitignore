@@ -20,6 +20,7 @@ npm-debug.log*
 .versions/
 coverage/
 www/
+!enterprise-auth-master/cordova/ionic-plugin-native-auth/www/
 node_modules/
 tmp/
 temp/
@@ -32,6 +33,3 @@ $RECYCLE.BIN/
 .DS_Store
 Thumbs.db
 UserInterfaceState.xcuserstate
-
-enterprise-auth-master/*
-!enterprise-auth-master/.gitkeep

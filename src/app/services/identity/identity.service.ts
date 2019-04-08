@@ -7,33 +7,34 @@ import { tap } from 'rxjs/operators';
 
 import { Platform } from '@ionic/angular';
 import {
-  AuthMethod,
+  AuthMode,
   IonicIdentityVaultUser,
-  IonicNativeAuthPlugin
-} from 'ionic-enterprise-identity-vault';
+  DefaultSession,
+  VaultConfig,
+  VaultError,
+} from '@ionic-enterprise/identity-vault';
 
-import { BrowserAuthPlugin } from '../browser-auth/browser-auth.plugin';
 import { environment } from '../../../environments/environment';
 import { User } from '../../models/user';
 
 @Injectable({
   providedIn: 'root'
 })
-export class IdentityService extends IonicIdentityVaultUser {
+export class IdentityService extends IonicIdentityVaultUser<DefaultSession> {
   private user: User;
 
   changed: Subject<User>;
 
   constructor(
-    private browserAuthPlugin: BrowserAuthPlugin,
     private http: HttpClient,
-    public platform: Platform, // TODO: ask why this is public...
-    private router: Router
+    private router: Router,
+    platform: Platform
   ) {
     super(platform, {
-      authMethod: AuthMethod.PinFallback,
-      enableBiometrics: true,
-      lockOnClose: false,
+      authMode: AuthMode.BiometricAndPasscode,
+      restoreSessionOnReady: false,
+      unlockOnReady: false,
+      unlockOnAccess: true,
       lockAfter: 5000,
       hideScreenOnBackground: true
     });
@@ -52,7 +53,7 @@ export class IdentityService extends IonicIdentityVaultUser {
 
   async set(user: User, token: string): Promise<void> {
     this.user = user;
-    await this.saveSession(user.email, token);
+    await this.saveSession({username: user.email, token: token});
     this.changed.next(this.user);
   }
 
@@ -64,25 +65,40 @@ export class IdentityService extends IonicIdentityVaultUser {
 
   async getToken(): Promise<string> {
     if (!this.token) {
-      await this.ready();
+      await this.restoreSession();
     }
-    return Promise.resolve(this.token);
+    return this.token;
   }
 
-  onSessionRestored(token: string) {
-    this.token = token;
+  onSessionRestored(session: DefaultSession) {
+    console.log('Session Restored: ', session);
+  }
+
+  onSetupError(error: VaultError): void {
+    console.error('Get error during setup', error);
+  }
+
+  onConfigChange(config: VaultConfig): void {
+    console.log('Got a config update: ', config);
+  }
+
+  onVaultReady(config: VaultConfig): void {
+    console.log('The service is ready with config: ', config);
+  }
+
+  onVaultUnlocked(config: VaultConfig): void {
+    console.log('The vault was unlocked with config: ', config);
+  }
+
+  onPasscodeRequest(isPasscodeSetRequest: boolean) {
+    // NOTE: You can use this to display a customer passcode prompt
+    // to the user and then return the input
+    console.log('Passcode Requested - Was for Setup?: ', isPasscodeSetRequest);
+    return undefined;
   }
 
   onVaultLocked() {
-    this.token = null;
+    console.log('Vault Locked');
     this.router.navigate(['login']);
-  }
-
-  getPlugin(): IonicNativeAuthPlugin {
-    if (this.platform.is('cordova')) {
-      return super.getPlugin();
-    } else {
-      return this.browserAuthPlugin;
-    }
   }
 }

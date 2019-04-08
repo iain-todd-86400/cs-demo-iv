@@ -15,11 +15,20 @@
 <ion-content text-center padding>
     <ion-list>
       <ion-item>
-        <ion-label>Use Biometrics</ion-label>
+        <ion-label>Use Biometrics ({{biometricType}})</ion-label>
         <ion-toggle [(ngModel)]="useBiometrics" (ionChange)="useBiometricsChanged()"></ion-toggle>
       </ion-item>
       <ion-item>
-        <ion-label>{{biometricType}}</ion-label>
+        <ion-label>Use Passcode</ion-label>
+        <ion-toggle [(ngModel)]="usePasscode" (ionChange)="usePasscodeChanged()"></ion-toggle>
+      </ion-item>
+      <ion-item>
+        <ion-label>Lock</ion-label>
+        <ion-button (click)="lock()"><ion-icon name="lock"></ion-icon></ion-button>
+      </ion-item>
+      <ion-item>
+        <ion-label>Logout</ion-label>
+        <ion-button (click)="logout()"><ion-icon name="log-out"></ion-icon></ion-button>
       </ion-item>
     </ion-list>
   </ion-content>

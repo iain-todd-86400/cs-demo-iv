@@ -10,6 +10,7 @@ import { AuthenticationService } from '../services/authentication';
 })
 export class SettingsPage implements OnInit {
   useBiometrics: boolean;
+  usePasscode: boolean;
   biometricType: string;
 
   constructor(
@@ -20,6 +21,7 @@ export class SettingsPage implements OnInit {
 
   async ngOnInit() {
     await this.identity.ready();
+    this.usePasscode = await  this.identity.isPasscodeEnabled();
     this.useBiometrics = await this.identity.isBiometricsEnabled();
     const type = await this.identity.getBiometricType();
     this.biometricType = this.translateBiometricType(type);
@@ -35,14 +37,20 @@ export class SettingsPage implements OnInit {
     this.identity.setBiometricsEnabled(this.useBiometrics);
   }
 
+  lock() {
+    this.identity.lockOut();
+  }
+
+  usePasscodeChanged() {
+    this.identity.setPasscodeEnabled(this.usePasscode);
+  }
+
   private translateBiometricType(type: string): string {
     switch (type) {
-      case 'touchid':
+      case 'touchID':
         return 'TouchID';
-      case 'faceid':
+      case 'faceID':
         return 'FaceID';
-      case 'fingerprint':
-        return 'Fingerprint';
     }
 
     return type;
