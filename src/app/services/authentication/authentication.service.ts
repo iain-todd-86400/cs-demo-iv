@@ -1,8 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
-import { Observable } from 'rxjs';
-import { map, tap } from 'rxjs/operators';
+import { Observable, from } from 'rxjs';
+import { flatMap } from 'rxjs/operators';
 
 import { environment } from '../../../environments/environment';
 import { IdentityService } from '../identity';
@@ -23,23 +23,25 @@ export class AuthenticationService {
           password: password
         }
       )
-      .pipe(
-        tap(async r => {
-          if (r.success) {
-            this.identity.set(r.user);
-            this.identity.setToken(r.token);
-          }
-        }),
-        map(r => r.success)
-      );
+      .pipe(flatMap(r => from(this.unpackResponse(r))));
   }
 
   logout(): Observable<any> {
     return this.http.post(`${environment.dataService}/logout`, {}).pipe(
-      tap(() => {
-        this.identity.setToken('');
-        this.identity.remove();
-      })
+      flatMap(() =>
+        from((async () => {
+          await this.identity.setToken('');
+          this.identity.remove();
+        }
+      )()))
     );
+  }
+
+  private async unpackResponse(r: any): Promise<boolean> {
+    if (r.success) {
+      await this.identity.set(r.user);
+      await this.identity.setToken(r.token);
+    }
+    return r.success;
   }
 }

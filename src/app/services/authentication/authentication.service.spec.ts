@@ -1,4 +1,4 @@
-import { TestBed, inject } from '@angular/core/testing';
+import { TestBed, inject, fakeAsync, tick } from '@angular/core/testing';
 import {
   HttpClientTestingModule,
   HttpTestingController
@@ -81,7 +81,7 @@ describe('AuthenticationService', () => {
         };
       });
 
-      it('resolves true', () => {
+      it('resolves true', fakeAsync(() => {
         authentication
           .login('thank.you@forthefish.com', 'solongDude')
           .subscribe(r => expect(r).toEqual(true));
@@ -89,10 +89,11 @@ describe('AuthenticationService', () => {
           `${environment.dataService}/login`
         );
         req.flush(response);
+        tick();
         httpTestingController.verify();
-      });
+      }));
 
-      it('stores the token', async () => {
+      it('stores the token', fakeAsync(() => {
         authentication
           .login('thank.you@forthefish.com', 'solongDude')
           .subscribe();
@@ -101,11 +102,12 @@ describe('AuthenticationService', () => {
         );
         req.flush(response);
         httpTestingController.verify();
+        tick();
         expect(identity.setToken).toHaveBeenCalledTimes(1);
         expect(identity.setToken).toHaveBeenCalledWith(
           '48499501093kf00399sg'
         );
-      });
+      }));
 
       it('sets the identity', () => {
         authentication
@@ -132,7 +134,7 @@ describe('AuthenticationService', () => {
         response = { success: false };
       });
 
-      it('resolves false', () => {
+      it('resolves false', fakeAsync(() => {
         authentication
           .login('thank.you@forthefish.com', 'solongDude')
           .subscribe(r => expect(r).toEqual(false));
@@ -140,8 +142,9 @@ describe('AuthenticationService', () => {
           `${environment.dataService}/login`
         );
         req.flush(response);
+        tick();
         httpTestingController.verify();
-      });
+      }));
 
       it('does not store the token', () => {
         authentication
@@ -170,7 +173,7 @@ describe('AuthenticationService', () => {
   });
 
   describe('logout', () => {
-    it('POSTs the logout', () => {
+    it('POSTs the logout', fakeAsync(() => {
       let fired = false;
       authentication.logout().subscribe(() => (fired = true));
       const req = httpTestingController.expectOne(
@@ -178,26 +181,29 @@ describe('AuthenticationService', () => {
       );
       req.flush({});
       httpTestingController.verify();
+      tick();
       expect(fired).toBeTruthy();
-    });
+    }));
 
-    it('removes the token from storage', () => {
+    it('removes the token from storage', fakeAsync(() => {
       authentication.logout().subscribe();
       const req = httpTestingController.expectOne(
         `${environment.dataService}/logout`
       );
       req.flush({});
+      tick();
       expect(identity.setToken).toHaveBeenCalledTimes(1);
       expect(identity.setToken).toHaveBeenCalledWith('');
-    });
+    }));
 
-    it('remove the identity', () => {
+    it('remove the identity', fakeAsync(() => {
       authentication.logout().subscribe();
       const req = httpTestingController.expectOne(
         `${environment.dataService}/logout`
       );
       req.flush({});
+      tick();
       expect(identity.remove).toHaveBeenCalledTimes(1);
-    });
+    }));
   });
 });

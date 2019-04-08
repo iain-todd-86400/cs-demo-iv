@@ -43,7 +43,7 @@ export class IdentityService {
     this.changed.next(this.user);
   }
 
-  async setToken(token: string) {
+  async setToken(token: string): Promise<void> {
     this.token = token;
     await this.storage.ready();
     if (token) {
