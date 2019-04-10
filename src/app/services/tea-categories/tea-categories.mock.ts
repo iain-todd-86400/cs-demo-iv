@@ -1,7 +1,11 @@
-import { of } from 'rxjs';
+import { of, Subject } from 'rxjs';
 
 export function createTeaCategoriesServiceMock() {
-  return jasmine.createSpyObj('TeaCategoriesService', {
-    getAll: of([])
+  const mock = jasmine.createSpyObj('TeaCategoriesService', {
+    getAll: of([]),
+    get: of({}),
+    save: of({})
   });
+  mock.changed = new Subject();
+  return mock;
 }

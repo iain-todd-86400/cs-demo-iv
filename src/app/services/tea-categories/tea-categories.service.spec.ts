@@ -46,4 +46,34 @@ describe('TeaCategoriesService', () => {
       httpTestingController.verify();
     });
   });
+
+  describe('get', () => {
+    let categories: Array<TeaCategory>;
+    beforeEach(() => {
+      categories = deepCopy(testTeaCategories);
+    });
+
+    it('gets a specific tea category', () => {
+      teaCategoriesService.get(3).subscribe(c => expect(c).toEqual(testTeaCategories[2]));
+      const req = httpTestingController.expectOne(`${environment.dataService}/tea-categories/3`);
+      expect(req.request.method).toEqual('GET');
+      req.flush(categories[2]);
+      httpTestingController.verify();
+    });
+  });
+
+  describe('save', () => {
+    let categories: Array<TeaCategory>;
+    beforeEach(() => {
+      categories = deepCopy(testTeaCategories);
+    });
+
+    it('saves the specified tea category', () => {
+      teaCategoriesService.save(testTeaCategories[3]).subscribe(c => expect(c).toEqual(testTeaCategories[3]));
+      const req = httpTestingController.expectOne(`${environment.dataService}/tea-categories/4`);
+      expect(req.request.method).toEqual('POST');
+      req.flush(testTeaCategories[3]);
+      httpTestingController.verify();
+    });
+  });
 });

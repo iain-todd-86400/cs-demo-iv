@@ -1,3 +1,11 @@
+export function createActivatedRouteMock() {
+  return {
+    snapshot: {
+      paramMap: jasmine.createSpyObj('Snapshot', ['get'])
+    }
+  };
+}
+
 export function createNavControllerMock() {
   return jasmine.createSpyObj('NavController', [
     'back',
