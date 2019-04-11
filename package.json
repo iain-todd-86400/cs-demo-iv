@@ -9,7 +9,7 @@
     "build": "ng build",
     "build:ios": "ionic cordova build ios --prod",
     "build:md": "ionic cordova build android --prod",
-    "test": "ng test",
+    "test": "ng test --browsers=ChromeHeadless",
     "lint": "ng lint",
     "e2e": "ng e2e"
   },

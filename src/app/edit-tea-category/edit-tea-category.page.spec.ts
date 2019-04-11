@@ -1,5 +1,4 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core';
-import { Location } from '@angular/common';
 import { async, ComponentFixture, TestBed } from '@angular/core/testing';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -23,7 +22,6 @@ describe('EditTeaCategoryPage', () => {
       imports: [FormsModule, IonicModule],
       providers: [
         { provide: ActivatedRoute, useFactory: createActivatedRouteMock },
-        { provide: Location, useValue: {} },
         { provide: NavController, useFactory: createNavControllerMock },
         {
           provide: TeaCategoriesService,
