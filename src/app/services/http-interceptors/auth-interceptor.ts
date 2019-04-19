@@ -19,15 +19,21 @@ export class AuthInterceptor implements HttpInterceptor {
     next: HttpHandler
   ): Observable<HttpEvent<any>> {
     return from(
-      this.identity.getToken().then(token => {
-        if (token) {
-          req = req.clone({
-            setHeaders: {
-              Authorization: 'Bearer ' + token
+      this.requestRequiresToken(req)
+        ? this.identity.getToken().then(token => {
+            if (token) {
+              req = req.clone({
+                setHeaders: {
+                  Authorization: 'Bearer ' + token
+                }
+              });
             }
-          });
-        }
-      })
+          })
+        : Promise.resolve()
     ).pipe(flatMap(() => next.handle(req)));
+  }
+
+  private requestRequiresToken(req: HttpRequest<any>): boolean {
+    return !/\/login$/.test(req.url);
   }
 }

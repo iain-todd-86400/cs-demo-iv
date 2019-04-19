@@ -7,23 +7,27 @@ import {
   createAuthenticationServiceMock,
   AuthenticationService
 } from '../services/authentication';
+import {
+  createIdentityServiceMock,
+  IdentityService
+} from '../services/identity';
 import { createNavControllerMock } from '../../../test/mocks';
 
 describe('AboutPage', () => {
   let component: AboutPage;
   let fixture: ComponentFixture<AboutPage>;
-  let authentication;
-  let navController;
 
   beforeEach(async(() => {
-    authentication = createAuthenticationServiceMock();
-    navController = createNavControllerMock();
     TestBed.configureTestingModule({
       declarations: [AboutPage],
       schemas: [CUSTOM_ELEMENTS_SCHEMA],
       providers: [
-        { provide: AuthenticationService, useValue: authentication },
-        { provide: NavController, useValue: navController }
+        {
+          provide: AuthenticationService,
+          useFactory: createAuthenticationServiceMock
+        },
+        { provide: IdentityService, useFactory: createIdentityServiceMock },
+        { provide: NavController, useFactory: createNavControllerMock }
       ]
     }).compileComponents();
   }));
