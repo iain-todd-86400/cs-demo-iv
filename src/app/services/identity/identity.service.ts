@@ -53,7 +53,7 @@ export class IdentityService extends IonicIdentityVaultUser<DefaultSession> {
 
   async set(user: User, token: string): Promise<void> {
     this.user = user;
-    await this.saveSession({username: user.email, token: token});
+    await this.login({username: user.email, token: token});
     this.changed.next(this.user);
   }
 

@@ -19,14 +19,18 @@ describe('IdentityService', () => {
   let platform;
   let router;
 
+  beforeAll(() => {
+    (window as any).IonicNativeAuth = new BrowserAuthPlugin(
+      new BrowserAuthService()
+    );
+  });
+
   beforeEach(() => {
     platform = createPlatformMock();
     router = createRouterMock();
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
-        BrowserAuthPlugin,
-        BrowserAuthService,
         IdentityService,
         { provide: Platform, useValue: platform },
         { provide: Router, useValue: router }
