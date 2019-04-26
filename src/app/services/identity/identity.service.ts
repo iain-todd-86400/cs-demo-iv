@@ -9,13 +9,15 @@ import { Platform } from '@ionic/angular';
 import {
   AuthMode,
   IonicIdentityVaultUser,
+  IonicNativeAuthPlugin,
   DefaultSession,
   VaultConfig,
-  VaultError,
+  VaultError
 } from '@ionic-enterprise/identity-vault';
 
 import { environment } from '../../../environments/environment';
 import { User } from '../../models/user';
+import { BrowserAuthPlugin } from '../browser-auth/browser-auth.plugin';
 
 @Injectable({
   providedIn: 'root'
@@ -26,11 +28,12 @@ export class IdentityService extends IonicIdentityVaultUser<DefaultSession> {
   changed: Subject<User>;
 
   constructor(
+    private browserAuthPlugin: BrowserAuthPlugin,
     private http: HttpClient,
     private router: Router,
-    platform: Platform
+    private plt: Platform
   ) {
-    super(platform, {
+    super(plt, {
       authMode: AuthMode.BiometricAndPasscode,
       restoreSessionOnReady: false,
       unlockOnReady: false,
@@ -53,7 +56,7 @@ export class IdentityService extends IonicIdentityVaultUser<DefaultSession> {
 
   async set(user: User, token: string): Promise<void> {
     this.user = user;
-    await this.login({username: user.email, token: token});
+    await this.login({ username: user.email, token: token });
     this.changed.next(this.user);
   }
 
@@ -100,5 +103,12 @@ export class IdentityService extends IonicIdentityVaultUser<DefaultSession> {
   onVaultLocked() {
     console.log('Vault Locked');
     this.router.navigate(['login']);
+  }
+
+  getPlugin(): IonicNativeAuthPlugin {
+    if (this.plt.is('cordova')) {
+      return super.getPlugin();
+    }
+    return this.browserAuthPlugin;
   }
 }

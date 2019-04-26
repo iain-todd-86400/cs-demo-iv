@@ -10,6 +10,7 @@ export class BrowserAuthPlugin implements IonicNativeAuthPlugin {
   constructor(private browserAuthService: BrowserAuthService) {}
 
   getVault(config: PluginOptions): IdentityVault {
+    config.onReady(this.browserAuthService);
     return this.browserAuthService;
   }
 }

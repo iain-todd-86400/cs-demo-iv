@@ -1,95 +1,115 @@
 import { Injectable } from '@angular/core';
-import {BiometricType, IdentityVault} from '@ionic-enterprise/identity-vault';
+import { Storage } from '@ionic/storage';
+import {
+  BiometricType,
+  IdentityVault,
+  PluginConfiguration,
+  AuthMode
+} from '@ionic-enterprise/identity-vault';
 
 @Injectable({
   providedIn: 'root'
 })
 export class BrowserAuthService implements IdentityVault {
+  constructor(private storage: Storage) {}
 
-  config = undefined;
+  config = {
+    authMode: AuthMode.InMemoryOnly,
+    descriptor: {
+      username: '',
+      vaultId: ''
+    },
+    isBiometricsEnabled: false,
+    isPasscodeEnabled: false,
+    isPasscodeSetupNeeded: false,
+    hideScreenOnBackground: false,
+    lockAfter: 50000
+  };
 
-  unsubscribe() {
-      return Promise.resolve();
-  }
-
-  clear() {
+  unsubscribe(): Promise<void> {
     return Promise.resolve();
   }
 
-  lock() {
+  clear(): Promise<void> {
+    return this.storage.clear();
+  }
+
+  lock(): Promise<void> {
     return Promise.resolve();
   }
 
-  isLocked() {
+  isLocked(): Promise<boolean> {
     return Promise.resolve(false);
   }
 
-  isInUse() {
-    return Promise.resolve(false);
+  async isInUse(): Promise<boolean> {
+    return !!(await this.storage.get('session'));
   }
 
-  getConfig() {
+  getConfig(): Promise<PluginConfiguration> {
     return Promise.resolve(this.config);
   }
 
-  remainingAttempts() {
+  remainingAttempts(): Promise<number> {
     return Promise.resolve(5);
   }
 
-  getUsername() {
+  getUsername(): Promise<string> {
     return Promise.resolve('MyUsername');
   }
 
-  storeToken(token: any) {
+  storeToken(token: any): Promise<void> {
     return Promise.resolve();
   }
 
-  getToken() {
+  getToken(): Promise<any> {
     return Promise.resolve('MyToken');
   }
 
-  storeValue(key: string, value: any) {
-    return Promise.resolve();
+  async storeValue(key: string, value: any): Promise<void> {
+    console.log('store value:', key, value);
+    await this.storage.set(key, value);
   }
 
-  getValue(key: string) {
-    return Promise.resolve('MyValue');
+  getValue(key: string): Promise<any> {
+    console.log('get value:', key);
+    return this.storage.get(key);
   }
 
-  getBiometricType() {
+  getBiometricType(): Promise<BiometricType> {
     const none: BiometricType = 'none';
     return Promise.resolve(none);
   }
 
-  setBiometricsEnabled(isBiometricsEnabled: boolean) {
+  setBiometricsEnabled(isBiometricsEnabled: boolean): Promise<void> {
     return Promise.resolve();
   }
 
-  isBiometricsEnabled() {
+  isBiometricsEnabled(): Promise<boolean> {
     return Promise.resolve(false);
   }
 
-  isBiometricsAvailable() {
+  isBiometricsAvailable(): Promise<boolean> {
     return Promise.resolve(false);
   }
 
-  isPasscodeSetupNeeded() {
+  isPasscodeSetupNeeded(): Promise<boolean> {
     return Promise.resolve(false);
   }
 
-  setPasscode(passcode?: string) {
+  setPasscode(passcode?: string): Promise<void> {
     return Promise.resolve();
   }
 
-  isPasscodeEnabled() {
+  isPasscodeEnabled(): Promise<boolean> {
     return Promise.resolve(false);
   }
 
-  setPasscodeEnabled(isPasscodeEnabled: boolean) {
+  setPasscodeEnabled(isPasscodeEnabled: boolean): Promise<void> {
     return Promise.resolve();
   }
 
-  unlock(usingPasscode?: boolean, passcode?: string) {
+  unlock(usingPasscode?: boolean, passcode?: string): Promise<void> {
     return Promise.resolve();
   }
 }
