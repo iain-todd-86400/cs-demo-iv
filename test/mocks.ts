@@ -41,6 +41,7 @@ export function createRouterMock() {
 
 export function createStorageMock() {
   return jasmine.createSpyObj('Storage', {
+    clear: Promise.resolve(),
     get: Promise.resolve(),
     ready: Promise.resolve(),
     remove: Promise.resolve(),

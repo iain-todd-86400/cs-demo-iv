@@ -6,8 +6,13 @@ import {
 import { Router } from '@angular/router';
 
 import { Platform } from '@ionic/angular';
+import { Storage } from '@ionic/storage';
 
-import { createPlatformMock, createRouterMock } from '../../../../test/mocks';
+import {
+  createPlatformMock,
+  createRouterMock,
+  createStorageMock
+} from '../../../../test/mocks';
 import { environment } from '../../../environments/environment';
 import { BrowserAuthPlugin } from '../browser-auth/browser-auth.plugin';
 import { BrowserAuthService } from '../browser-auth/browser-auth.service';
@@ -21,7 +26,7 @@ describe('IdentityService', () => {
 
   beforeAll(() => {
     (window as any).IonicNativeAuth = new BrowserAuthPlugin(
-      new BrowserAuthService()
+      new BrowserAuthService(createStorageMock())
     );
   });
 
@@ -33,7 +38,8 @@ describe('IdentityService', () => {
       providers: [
         IdentityService,
         { provide: Platform, useValue: platform },
-        { provide: Router, useValue: router }
+        { provide: Router, useValue: router },
+        { provide: Storage, useFactory: createStorageMock }
       ]
     });
 
